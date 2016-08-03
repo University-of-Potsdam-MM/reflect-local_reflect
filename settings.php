@@ -15,11 +15,22 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Web service template plugin related strings
- * @package   localwstemplate
- * @copyright 2011 Moodle Pty Ltd (http://moodle.com)
- * @author    Jerome Mouneyrac
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * Plugin settings
+ *
+ * @package    local_reflection
+ * @copyright  2016 Alexander Kiy <alekiy@uni-potsdam.de>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'UP Refelction Web Service Plugin';
+defined('MOODLE_INTERNAL') || die;
+
+if ($hassiteconfig) {
+
+    $settings = new admin_settingpage('local_reflection', new lang_string('pluginname', 'local_reflection'));
+    $ADMIN->add('localplugins', $settings);
+
+    $settings->add(new admin_setting_configtext('local_reflection/courseID',
+                        get_string('local_reflection_courseID_key', 'local_reflection'),
+                        get_string('local_reflection_courseID', 'local_reflection'), 'UPR1', PARAM_ALPHA));
+
+}

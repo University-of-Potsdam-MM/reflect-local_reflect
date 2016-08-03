@@ -14,15 +14,16 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * External Web Service Template
+ * External functions backported.
  *
- * @package    localwstemplate
- * @copyright  2011 Moodle Pty Ltd (http://moodle.com)
+ * @package    local_reflection
+ * @copyright  2016 Alexander Kiy <alekiy@uni-potsdam.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once($CFG->libdir . "/externallib.php");
 
 class local_reflection_external extends external_api {
+
 
     /**
      * Returns boolean if self enrolment succeded
@@ -34,6 +35,7 @@ class local_reflection_external extends external_api {
                 array()
         );
     }
+
 
     /**
      * enrol_self in course
@@ -50,9 +52,12 @@ class local_reflection_external extends external_api {
         $enrolment = false;
         $warnings = array();
 
-
+        $courseID = get_config('local_reflection', 'courseID');
+        if (empty($courseID)) {
+            $courseID = 'UPR1';
+        }
         // get instance
-        $course = $DB->get_record('course', array('idnumber' => 'UPR1'));
+        $course = $DB->get_record('course', array('idnumber' => $courseID));
         $param = array('shortname' => 'student');
         $studentRole = $DB->get_record('role', $param);
 
@@ -118,6 +123,7 @@ class local_reflection_external extends external_api {
         return $result;
     }
 
+
     /**
      * Returns description of method result value
      *
@@ -132,6 +138,7 @@ class local_reflection_external extends external_api {
                 )
         );
     }
+
 
     /**
      * Returns description of method parameters
@@ -168,6 +175,7 @@ class local_reflection_external extends external_api {
         );
     }
 
+
     /**
      * Get Calendar events
      *
@@ -184,7 +192,12 @@ class local_reflection_external extends external_api {
 
         // Parameter validation.
         $params = self::validate_parameters(self::get_calendar_reflection_events_parameters(), array('events' => $events, 'options' => $options));
-        $course = $DB->get_record('course', array('idnumber' => 'UPR1'));
+
+        $courseID = get_config('local_reflection', 'courseID');
+        if (empty($courseID)) {
+            $courseID = 'UPR1';
+        }
+        $course = $DB->get_record('course', array('idnumber' => $courseID));
 
         if (!$course)
             return;
@@ -252,13 +265,6 @@ class local_reflection_external extends external_api {
             }
         }
 
-        // testing addFeedback
-//        $forumName = "Feedback Forum";
-//        self::addFeedbackForumToCourse($course->id, $forumName);
-//        self::addFeedbackPostToForum($course->id, $forumName, "find ich gut");
-
-
-
         return array('events' => $events, 'warnings' => $warnings);
     }
 
@@ -285,6 +291,7 @@ class local_reflection_external extends external_api {
 
         rebuild_course_cache($courseid);
     }
+
 
     /**
      *
@@ -336,12 +343,18 @@ class local_reflection_external extends external_api {
         }
     }
 
+
     public static function post_feedback($feedback) {
 
         global $DB, $CFG;
         include_once($CFG->dirroot . "/course/lib.php");
 
-        $course = $DB->get_record('course', array('idnumber' => 'UPR1'));
+        $courseID = get_config('local_reflection', 'courseID');
+        if (empty($courseID)) {
+            $courseID = 'UPR1';
+        }
+        $course = $DB->get_record('course', array('idnumber' => $courseID));
+
         $courseid = $course->id;
 
         $forumName = "Feedback Forum";
@@ -362,6 +375,7 @@ class local_reflection_external extends external_api {
                 )
         );
     }
+
 
     /**
      * Returns description of method result value
@@ -401,6 +415,7 @@ class local_reflection_external extends external_api {
         );
     }
 
+
     /**
      * Returns description of method parameters
      *
@@ -419,6 +434,7 @@ class local_reflection_external extends external_api {
         );
     }
 
+
     /**
      * Get Fedback events
      * @package array $options various options
@@ -432,11 +448,13 @@ class local_reflection_external extends external_api {
 
         $feedbacks = array();
 
-
-        if (!$course = $DB->get_record('course', array('idnumber' => 'UPR1'))) {
-            //TODO: error
+        $courseID = get_config('local_reflection', 'courseID');
+        if (empty($courseID)) {
+            $courseID = 'UPR1';
         }
-
+        $course = $DB->get_record('course', array('idnumber' => $courseID));
+        if (!$course)
+            return;
 
         $feedback_list = get_all_instances_in_course("feedback", $course, NULL, false);
 
@@ -489,6 +507,7 @@ class local_reflection_external extends external_api {
         return array('feedbacks' => $feedbacks);
     }
 
+
     /**
      * Returns description of method result value
      *
@@ -520,6 +539,7 @@ class local_reflection_external extends external_api {
         );
     }
 
+
     /**
      * Returns description of method parameters
      *
@@ -542,6 +562,7 @@ class local_reflection_external extends external_api {
         );
     }
 
+
     /**
      * Get Fedback events
      * @package array $options various options
@@ -555,10 +576,13 @@ class local_reflection_external extends external_api {
 
         $result = array();
 
-
-        if (!$course = $DB->get_record('course', array('idnumber' => 'UPR1'))) {
-            //TODO: error
+        $courseID = get_config('local_reflection', 'courseID');
+        if (empty($courseID)) {
+            $courseID = 'UPR1';
         }
+        $course = $DB->get_record('course', array('idnumber' => $courseID));
+        if (!$course)
+            return;
 
         $completed = new stdClass();
         $completed->feedback = $id;
@@ -591,6 +615,7 @@ class local_reflection_external extends external_api {
         $result['resultText'] = "Success";
         return $result;
     }
+
 
     /**
      * Returns description of method result value

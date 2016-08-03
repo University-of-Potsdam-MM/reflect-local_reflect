@@ -12,6 +12,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+defined('MOODLE_INTERNAL') || die();
+
 $plugin->version  = 2015022402;   // The (date) version of this module + 2 extra digital for daily versions
                                   // This version number is displayed into /admin/forms.php
                                   // TODO: if ever this plugin get branched, the old branch number
@@ -21,4 +23,5 @@ $plugin->version  = 2015022402;   // The (date) version of this module + 2 extra
 $plugin->requires = 2010112400;  // Requires this Moodle version - at least 2.0
 $plugin->cron     = 0;
 $plugin->release = '1.1 (Build: 20150224020)';
+$plugin->component = 'local_reflection';        // Full name of the plugin (used for diagnostics).
 $plugin->maturity = MATURITY_STABLE;
