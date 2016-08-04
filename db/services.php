@@ -23,14 +23,14 @@
 // We defined the web service functions to install.
 $functions = array(
     'local_reflect_get_calendar_entries' => array(
-        'classname' => 'local_reflection_external',
-        'methodname' => 'get_calendar_reflection_events',
-        'classpath' => 'local/upreflection/externallib.php',
+        'classname' => 'local_reflect_external',
+        'methodname' => 'get_calendar_reflect_events',
+        'classpath' => 'local/reflect/externallib.php',
         'description' => 'Returns the calendar entries of the Reflection course',
         'type' => 'read',
     ),
     'local_reflect_get_feedbacks' => array(
-        'classname' => 'local_reflection_external',
+        'classname' => 'local_reflect_external',
         'methodname' => 'get_feedbacks',
         'classpath' => 'local/reflect/externallib.php',
         'description' => 'Returns the feedback entries of the Reflection course',
