@@ -15,7 +15,7 @@
 /**
  * Defines the metadata for the Reflect Webservice
  *
- * @package    local_reflection
+ * @package    local_reflect
  * @copyright  2016 Alexander Kiy <alekiy@uni-potsdam.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -26,5 +26,5 @@ $plugin->version  = 2016080401;
 $plugin->requires = 2010112400;
 $plugin->cron     = 0;
 $plugin->release = '1.1 (Build: 20150224020)';
-$plugin->component = 'local_reflection';        // Full name of the plugin (used for diagnostics).
+$plugin->component = 'local_reflect';        // Full name of the plugin (used for diagnostics).
 $plugin->maturity = MATURITY_STABLE;

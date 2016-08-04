@@ -2,5 +2,5 @@ Reflect - Webservice
 ------------------------------------------
 
 To install:
-1 - checkout the plugin to moodle/local/reflection/
+1 - checkout the plugin to moodle/local/reflect/
 2 - log in as  administrator and install the plugin

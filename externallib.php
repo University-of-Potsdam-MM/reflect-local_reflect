@@ -16,13 +16,13 @@
 /**
  * External functions backported.
  *
- * @package    local_reflection
+ * @package    local_reflect
  * @copyright  2016 Alexander Kiy <alekiy@uni-potsdam.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once($CFG->libdir . "/externallib.php");
 
-class local_reflection_external extends external_api {
+class local_reflect_external extends external_api {
 
 
     /**
@@ -52,7 +52,7 @@ class local_reflection_external extends external_api {
         $enrolment = false;
         $warnings = array();
 
-        $courseID = get_config('local_reflection', 'courseID');
+        $courseID = get_config('local_reflect', 'courseID');
         if (empty($courseID)) {
             $courseID = 'UPR1';
         }
@@ -146,7 +146,7 @@ class local_reflection_external extends external_api {
      * @return external_function_parameters
      * @since Moodle 2.5
      */
-    public static function get_calendar_reflection_events_parameters() {
+    public static function get_calendar_reflect_events_parameters() {
         return new external_function_parameters(
                 array('events' => new external_single_structure(
                     array(
@@ -184,16 +184,16 @@ class local_reflection_external extends external_api {
      * @return array Array of event details
      * @since Moodle 2.5
      */
-    public static function get_calendar_reflection_events($events = array(), $options = array()) {
+    public static function get_calendar_reflect_events($events = array(), $options = array()) {
 
 
         global $SITE, $DB, $USER, $CFG;
         require_once($CFG->dirroot . "/calendar/lib.php");
 
         // Parameter validation.
-        $params = self::validate_parameters(self::get_calendar_reflection_events_parameters(), array('events' => $events, 'options' => $options));
+        $params = self::validate_parameters(self::get_calendar_reflect_events_parameters(), array('events' => $events, 'options' => $options));
 
-        $courseID = get_config('local_reflection', 'courseID');
+        $courseID = get_config('local_reflect', 'courseID');
         if (empty($courseID)) {
             $courseID = 'UPR1';
         }
@@ -349,7 +349,7 @@ class local_reflection_external extends external_api {
         global $DB, $CFG;
         include_once($CFG->dirroot . "/course/lib.php");
 
-        $courseID = get_config('local_reflection', 'courseID');
+        $courseID = get_config('local_reflect', 'courseID');
         if (empty($courseID)) {
             $courseID = 'UPR1';
         }
@@ -383,7 +383,7 @@ class local_reflection_external extends external_api {
      * @return external_description
      * @since Moodle 2.5
      */
-    public static function get_calendar_reflection_events_returns() {
+    public static function get_calendar_reflect_events_returns() {
         return new external_single_structure(
                 array(
             'events' => new external_multiple_structure(
@@ -448,7 +448,7 @@ class local_reflection_external extends external_api {
 
         $feedbacks = array();
 
-        $courseID = get_config('local_reflection', 'courseID');
+        $courseID = get_config('local_reflect', 'courseID');
         if (empty($courseID)) {
             $courseID = 'UPR1';
         }
@@ -576,7 +576,7 @@ class local_reflection_external extends external_api {
 
         $result = array();
 
-        $courseID = get_config('local_reflection', 'courseID');
+        $courseID = get_config('local_reflect', 'courseID');
         if (empty($courseID)) {
             $courseID = 'UPR1';
         }
