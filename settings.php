@@ -31,6 +31,6 @@ if ($hassiteconfig) {
 
     $settings->add(new admin_setting_configtext('local_reflection/courseID',
                         get_string('local_reflection_courseID_key', 'local_reflection'),
-                        get_string('local_reflection_courseID', 'local_reflection'), 'UPR1', PARAM_ALPHA));
+                        get_string('local_reflection_courseID', 'local_reflection'), 'UPR1', PARAM_RAW));
 
 }

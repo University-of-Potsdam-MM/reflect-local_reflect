@@ -22,6 +22,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'Reflection Web Service';
+$string['pluginname'] = 'Reflect Web Service';
 $string['local_reflection_courseID_key'] = 'Course ID number';
 $string['local_reflection_courseID'] = 'Course ID number of the reflection course';
