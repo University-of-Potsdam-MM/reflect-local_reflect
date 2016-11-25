@@ -458,8 +458,8 @@ class local_reflect_external extends external_api {
 
         $feedback_list = get_all_instances_in_course("feedback", $course, NULL, false);
 
-        //file_put_contents("D:\output.txt", "Feedbacks: \n", FILE_APPEND);
-        //file_put_contents("D:\output.txt", print_r($feedback_list, true)."\n", FILE_APPEND);
+        //file_put_contents("/Users/elis/Desktop/code/UPReflection/output.txt", "Feedbacks: \n", FILE_APPEND);
+        //file_put_contents("/Users/elis/Desktop/code/UPReflection/output.txt", print_r($feedback_list, true)."\n", FILE_APPEND);
 
         foreach ($feedback_list as $id => $feedback_object) {
 
@@ -478,15 +478,18 @@ class local_reflect_external extends external_api {
                         $item_object->typ != 'multichoice')
                     continue;
 
-
+                // TODO: capture the elements 'dependitem' and 'dependvalue' to be able to define a conditional-question mechanism
                 $question = array(
                     'id' => $item_object->id,
                     'questionText' => $item_object->name,
-                    'type' => $item_object->typ
+                    'type' => $item_object->typ,
+                    'dependitem' => $item_object->dependitem,
+                    'dependvalue' => $item_object->dependvalue
                 );
 
                 if ($item_object->typ == 'multichoice')
                     $question['choices'] = $item_object->presentation;
+
 
                 $questions[$item_id] = (array) $question;
             }
@@ -501,8 +504,8 @@ class local_reflect_external extends external_api {
             $feedbacks[$id] = (array) $feedback;
         }
 
-        //file_put_contents("D:\output.txt", "Feedbacks: \n", FILE_APPEND);
-        //file_put_contents("D:\output.txt", print_r($feedbacks, true)."\n", FILE_APPEND);
+        //file_put_contents("/Users/elis/Desktop/code/UPReflection/output.txt", "Feedbacks: \n", FILE_APPEND);
+        //file_put_contents("/Users/elis/Desktop/code/UPReflection/output.txt", print_r($feedbacks, true)."\n", FILE_APPEND);
 
         return array('feedbacks' => $feedbacks);
     }
@@ -528,6 +531,8 @@ class local_reflect_external extends external_api {
                     'id' => new external_value(PARAM_INT, 'Question Id'),
                     'questionText' => new external_value(PARAM_TEXT, 'Question Text'),
                     'type' => new external_value(PARAM_TEXT, 'Question Text'),
+                    'dependitem' => new external_value(PARAM_TEXT, 'Depend Item'),              //'dependitem' and 'dependvalue' attributes needed for
+                    'dependvalue' => new external_value(PARAM_TEXT, 'Depend Value'),            //      supporting conditional questions
                     'choices' => new external_value(PARAM_TEXT, 'Choices', VALUE_OPTIONAL)
                         ), 'Question', VALUE_DEFAULT, array()
                         ), VALUE_DEFAULT, array()
