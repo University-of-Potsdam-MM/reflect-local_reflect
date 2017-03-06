@@ -29,8 +29,18 @@ if ($hassiteconfig) {
     $settings = new admin_settingpage('local_reflect', new lang_string('pluginname', 'local_reflect'));
     $ADMIN->add('localplugins', $settings);
 
-    $settings->add(new admin_setting_configtext('local_reflect/courseID',
-                        get_string('local_reflect_courseID_key', 'local_reflect'),
-                        get_string('local_reflect_courseID', 'local_reflect'), 'UPR1', PARAM_RAW));
+    /*		ORIGINAL CODE:
+    *
+    *	    $settings->add(new admin_setting_configtext('local_reflect/courseID',
+    *                    get_string('local_reflect_courseID_key', 'local_reflect'),
+    *                    get_string('local_reflect_courseID', 'local_reflect'), 'UPR1', PARAM_RAW));
+    *
+    */
+
+    //	NEW VERSION WITH A TEXT AREA INSTEAD : courses' ids must be listed one per line
+
+    $settings->add(new admin_setting_configtextarea('local_reflect/courseID', get_string('local_reflect_courseID_key', 'local_reflect'),
+    	get_string('local_reflect_courseID', 'local_reflect'), 'UPR1', PARAM_RAW, $cols = '60', $rows= '8'));
+
 
 }

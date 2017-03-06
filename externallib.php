@@ -32,7 +32,9 @@ class local_reflect_external extends external_api {
      */
     public static function enrol_self_parameters() {
         return new external_function_parameters(
-                array()
+                array(
+                    'courseID' => new external_value(PARAM_TEXT, 'courseID')
+                )
         );
     }
 
@@ -44,18 +46,27 @@ class local_reflect_external extends external_api {
      * @return array Array of self enrolment details
      * @since Moodle 2.5
      */
-    public static function enrol_self() {
+    public static function enrol_self($courseID) {
         global $DB, $USER, $CFG;
 
         require_once($CFG->libdir . '/enrollib.php');
 
         $enrolment = false;
         $warnings = array();
+        
+        $input = get_config('local_reflect','courseID');
 
-        $courseID = get_config('local_reflect', 'courseID');
-        if (empty($courseID)) {
-            $courseID = 'UPR1';
+        //exit if empty
+        if(strlen($input) == 0)return;
+
+        //tokenize trimmed input
+        $ids_array = explode("\n",str_replace("\r", "", $input));
+
+        //check if the specified array of ids contains the course's id
+        if(!in_array($courseID, $ids_array)){
+            return;
         }
+
         // get instance
         $course = $DB->get_record('course', array('idnumber' => $courseID));
         $param = array('shortname' => 'student');
@@ -150,27 +161,28 @@ class local_reflect_external extends external_api {
         return new external_function_parameters(
                 array('events' => new external_single_structure(
                     array(
-                'eventids' => new external_multiple_structure(
-                        new external_value(PARAM_INT, 'event ids')
-                        , 'List of event ids', VALUE_DEFAULT, array(), NULL_ALLOWED
-                ),
-                'courseids' => new external_multiple_structure(
-                        new external_value(PARAM_INT, 'course ids')
-                        , 'List of course ids for which events will be returned', VALUE_DEFAULT, array(), NULL_ALLOWED
-                ),
-                'groupids' => new external_multiple_structure(
-                        new external_value(PARAM_INT, 'group ids')
-                        , 'List of group ids for which events should be returned', VALUE_DEFAULT, array(), NULL_ALLOWED
-                )
+                        'eventids' => new external_multiple_structure(
+                                new external_value(PARAM_INT, 'event ids')
+                                , 'List of event ids', VALUE_DEFAULT, array(), NULL_ALLOWED
+                        ),
+                        'courseids' => new external_multiple_structure(
+                                new external_value(PARAM_INT, 'course ids')
+                                , 'List of course ids for which events will be returned', VALUE_DEFAULT, array(), NULL_ALLOWED
+                        ),
+                        'groupids' => new external_multiple_structure(
+                                new external_value(PARAM_INT, 'group ids')
+                                , 'List of group ids for which events should be returned', VALUE_DEFAULT, array(), NULL_ALLOWED
+                        )
                     ), 'Event details', VALUE_DEFAULT, array()),
-            'options' => new external_single_structure(
+                'options' => new external_single_structure(
                     array(
-                'userevents' => new external_value(PARAM_BOOL, "Set to true to return current user's user events", VALUE_DEFAULT, true, NULL_ALLOWED),
-                'siteevents' => new external_value(PARAM_BOOL, "Set to true to return global events", VALUE_DEFAULT, true, NULL_ALLOWED),
-                'timestart' => new external_value(PARAM_INT, "Time from which events should be returned", VALUE_DEFAULT, 0, NULL_ALLOWED),
-                'timeend' => new external_value(PARAM_INT, "Time to which the events should be returned", VALUE_DEFAULT, time(), NULL_ALLOWED),
-                'ignorehidden' => new external_value(PARAM_BOOL, "Ignore hidden events or not", VALUE_DEFAULT, true, NULL_ALLOWED),
-                    ), 'Options', VALUE_DEFAULT, array())
+                        'userevents' => new external_value(PARAM_BOOL, "Set to true to return current user's user events", VALUE_DEFAULT, true, NULL_ALLOWED),
+                        'siteevents' => new external_value(PARAM_BOOL, "Set to true to return global events", VALUE_DEFAULT, true, NULL_ALLOWED),
+                        'timestart' => new external_value(PARAM_INT, "Time from which events should be returned", VALUE_DEFAULT, 0, NULL_ALLOWED),
+                        'timeend' => new external_value(PARAM_INT, "Time to which the events should be returned", VALUE_DEFAULT, time(), NULL_ALLOWED),
+                        'ignorehidden' => new external_value(PARAM_BOOL, "Ignore hidden events or not", VALUE_DEFAULT, true, NULL_ALLOWED),
+                    ), 'Options', VALUE_DEFAULT, array()),
+                'courseID' => new external_value(PARAM_TEXT, 'courseID')
                 )
         );
     }
@@ -184,19 +196,31 @@ class local_reflect_external extends external_api {
      * @return array Array of event details
      * @since Moodle 2.5
      */
-    public static function get_calendar_reflect_events($events = array(), $options = array()) {
+    public static function get_calendar_reflect_events($events = array(), $options = array(), $courseID) {
 
 
         global $SITE, $DB, $USER, $CFG;
         require_once($CFG->dirroot . "/calendar/lib.php");
 
         // Parameter validation.
-        $params = self::validate_parameters(self::get_calendar_reflect_events_parameters(), array('events' => $events, 'options' => $options));
+        $params = self::validate_parameters(self::get_calendar_reflect_events_parameters(), array('events' => $events, 'options' => $options, 'courseID' => $courseID));
 
-        $courseID = get_config('local_reflect', 'courseID');
-        if (empty($courseID)) {
-            $courseID = 'UPR1';
+        $input = get_config('local_reflect','courseID');
+
+        //exit if empty
+        if(strlen($input) == 0)return;
+
+        //tokenize trimmed input
+        $ids_array = explode("\n",str_replace("\r", "", $input));
+
+        //check if the specified array of ids contains the course's id
+        if(in_array($courseID, $ids_array)){
+            $courseID= $params['courseID'];
         }
+        else{
+            return;
+        }
+
         $course = $DB->get_record('course', array('idnumber' => $courseID));
 
         if (!$course)
@@ -227,6 +251,9 @@ class local_reflect_external extends external_api {
 
         $eventlist = calendar_get_events($params['options']['timestart'], $params['options']['timeend'], $funcparam['users'], $funcparam['groups'], $funcparam['courses'], true, $params['options']['ignorehidden']
         );
+
+        //file_put_contents("/Users/elis/Desktop/code/UPReflection/output_appointments.txt", "Complete Appointments: \n", FILE_APPEND);
+        //file_put_contents("/Users/elis/Desktop/code/UPReflection/output_appointments.txt", print_r($eventlist, true)."\n", FILE_APPEND);
 
         //////////////////////////////////////////////////////////
         // WS expects arrays.
@@ -344,15 +371,24 @@ class local_reflect_external extends external_api {
     }
 
 
-    public static function post_feedback($feedback) {
+    public static function post_feedback($feedback, $courseID) {
 
         global $DB, $CFG;
         include_once($CFG->dirroot . "/course/lib.php");
 
-        $courseID = get_config('local_reflect', 'courseID');
-        if (empty($courseID)) {
-            $courseID = 'UPR1';
+        $input = get_config('local_reflect','courseID');
+
+        //exit if empty
+        if(strlen($input) == 0)return;
+
+        //tokenize trimmed input
+        $ids_array = explode("\n",str_replace("\r", "", $input));
+
+        //check if the specified array of ids contains the course's id
+        if(!in_array($courseID, $ids_array)){
+            return;
         }
+
         $course = $DB->get_record('course', array('idnumber' => $courseID));
 
         $courseid = $course->id;
@@ -365,7 +401,9 @@ class local_reflect_external extends external_api {
 
     public static function post_feedback_parameters() {
         return new external_function_parameters(
-                array('feedback' => new external_value(PARAM_TEXT, 'feedback')));
+                array('feedback' => new external_value(PARAM_TEXT, 'feedback'),
+                    'courseID' => new external_value(PARAM_TEXT, 'courseID')
+                    ));
     }
 
     public static function post_feedback_returns() {
@@ -429,7 +467,8 @@ class local_reflect_external extends external_api {
                     array(
                 'timestart' => new external_value(PARAM_INT, "Time from which feedbacks should be returned", VALUE_DEFAULT, 0, NULL_ALLOWED),
                 'timeend' => new external_value(PARAM_INT, "Time to which feedbacks should be returned", VALUE_DEFAULT, time(), NULL_ALLOWED)
-                    ), 'Options', VALUE_DEFAULT, array())
+                    ), 'Options', VALUE_DEFAULT, array()),
+            'courseID' => new external_value(PARAM_TEXT, 'courseID')
                 )
         );
     }
@@ -441,25 +480,34 @@ class local_reflect_external extends external_api {
      * @return array Array of feedback details
      * @since Moodle 2.5
      */
-    public static function get_feedbacks($options = array()) {
+    public static function get_feedbacks($options = array(), $courseID) {
 
         global $SITE, $DB, $USER, $CFG;
         require_once($CFG->dirroot . "/mod/feedback/lib.php");
 
         $feedbacks = array();
 
-        $courseID = get_config('local_reflect', 'courseID');
-        if (empty($courseID)) {
-            $courseID = 'UPR1';
+        $input = get_config('local_reflect','courseID');
+
+        //exit if empty
+        if(strlen($input) == 0)return;
+
+        //tokenize trimmed input
+        $ids_array = explode("\n",str_replace("\r", "", $input));
+
+        //check if the specified array of ids contains the course's id
+        if(!in_array($courseID, $ids_array)){
+            return;
         }
+
         $course = $DB->get_record('course', array('idnumber' => $courseID));
         if (!$course)
             return;
 
         $feedback_list = get_all_instances_in_course("feedback", $course, NULL, false);
 
-        //file_put_contents("/Users/elis/Desktop/code/UPReflection/output.txt", "Feedbacks: \n", FILE_APPEND);
-        //file_put_contents("/Users/elis/Desktop/code/UPReflection/output.txt", print_r($feedback_list, true)."\n", FILE_APPEND);
+        //file_put_contents("/Users/elis/Desktop/code/UPReflection/output_feedbacks.txt", "Complete Feedbacks: \n", FILE_APPEND);
+        //file_put_contents("/Users/elis/Desktop/code/UPReflection/output_feedbacks.txt", print_r($feedback_list, true)."\n", FILE_APPEND);
 
         foreach ($feedback_list as $id => $feedback_object) {
 
@@ -467,9 +515,9 @@ class local_reflect_external extends external_api {
                 continue;
             //TODO: Time und Caps beachten
 
-
             $feedbackitems = $DB->get_records('feedback_item', array('feedback' => $feedback_object->id));
             $questions = array();
+
 
             foreach ($feedbackitems as $item_id => $item_object) {
 
@@ -478,7 +526,7 @@ class local_reflect_external extends external_api {
                         $item_object->typ != 'multichoice')
                     continue;
 
-                // TODO: capture the elements 'dependitem' and 'dependvalue' to be able to define a conditional-question mechanism
+                // capture the elements 'dependitem' and 'dependvalue' to be able to define a conditional-question mechanism
                 $question = array(
                     'id' => $item_object->id,
                     'questionText' => $item_object->name,
@@ -494,18 +542,19 @@ class local_reflect_external extends external_api {
                 $questions[$item_id] = (array) $question;
             }
 
-
+            // capture the element 'page after submit' to know if there is a custom feedback message to be displayed at the end
             $feedback = array(
                 'name' => $feedback_object->name,
+                'feedbackMessage' => $feedback_object ->page_after_submit,
                 'id' => $feedback_object->id,
-                'questions' => $questions
+                'questions' => $questions,
             );
 
             $feedbacks[$id] = (array) $feedback;
         }
 
-        //file_put_contents("/Users/elis/Desktop/code/UPReflection/output.txt", "Feedbacks: \n", FILE_APPEND);
-        //file_put_contents("/Users/elis/Desktop/code/UPReflection/output.txt", print_r($feedbacks, true)."\n", FILE_APPEND);
+        file_put_contents("/Users/elis/Desktop/code/UPReflection/output_feedbacks.txt", "Obtained Feedbacks: \n", FILE_APPEND);
+        file_put_contents("/Users/elis/Desktop/code/UPReflection/output_feedbacks.txt", print_r($feedbacks, true)."\n", FILE_APPEND);
 
         return array('feedbacks' => $feedbacks);
     }
@@ -524,8 +573,9 @@ class local_reflect_external extends external_api {
                     new external_single_structure(
                     array(
                 'name' => new external_value(PARAM_TEXT, 'feedback name'),
-                'id' => new external_value(PARAM_INT, 'event id'),
-                'questions' => new external_multiple_structure(
+                'feedbackMessage' => new external_value(PARAM_RAW,'feedback message'),          // 'feedbackMessage' needed for custom message after
+                'id' => new external_value(PARAM_INT, 'event id'),                              //      questionary is submited
+                'questions' => new external_multiple_structure(                                 
                         new external_single_structure(
                         array(
                     'id' => new external_value(PARAM_INT, 'Question Id'),
@@ -553,17 +603,18 @@ class local_reflect_external extends external_api {
      */
     public static function submit_feedbacks_parameters() {
         return new external_function_parameters(
-                array(
-            'id' => new external_value(PARAM_INT, 'event id'),
-            'answers' => ( new external_multiple_structure(
-            new external_single_structure(
             array(
-        'id' => new external_value(PARAM_INT, 'Question Id'),
-        'answer' => new external_value(PARAM_TEXT, 'Answer Text'),
-            ), 'Answers', VALUE_DEFAULT, array()
+                'id' => new external_value(PARAM_INT, 'event id'),
+                'answers' => ( new external_multiple_structure(
+                new external_single_structure(
+                    array(
+                        'id' => new external_value(PARAM_INT, 'Question Id'),
+                        'answer' => new external_value(PARAM_TEXT, 'Answer Text'),
+                        ), 'Answers', VALUE_DEFAULT, array()
+                    )
+                )),
+                'courseID' => new external_value(PARAM_TEXT, 'courseID')
             )
-            ))
-                )
         );
     }
 
@@ -574,17 +625,26 @@ class local_reflect_external extends external_api {
      * @return array Array of feedback details
      * @since Moodle 2.5
      */
-    public static function submit_feedbacks($id = -1, $answers = array()) {
+    public static function submit_feedbacks($id = -1, $answers = array(), $courseID) {
 
         global $SITE, $DB, $USER, $CFG;
         require_once($CFG->dirroot . "/mod/feedback/lib.php");
 
         $result = array();
 
-        $courseID = get_config('local_reflect', 'courseID');
-        if (empty($courseID)) {
-            $courseID = 'UPR1';
+        $input = get_config('local_reflect','courseID');
+
+        //exit if empty
+        if(strlen($input) == 0)return;
+
+        //tokenize trimmed input
+        $ids_array = explode("\n",str_replace("\r", "", $input));
+
+        //check if the specified array of ids contains the course's id
+        if(!in_array($courseID, $ids_array)){
+            return;
         }
+
         $course = $DB->get_record('course', array('idnumber' => $courseID));
         if (!$course)
             return;
