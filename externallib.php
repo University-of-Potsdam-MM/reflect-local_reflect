@@ -362,7 +362,7 @@ class local_reflect_external extends external_api {
                 echo $OUTPUT->notification("Could not add a new course module to the course '" . $courseid . "'");
                 return false;
             }
-            if (!$sectionid = add_mod_to_section($mod)) {   // assumes course/lib.php is loaded
+            if (!$sectionid = course_add_cm_to_section($courseid, $mod->coursemodule, 0)) {   // assumes course/lib.php is loaded
                 echo $OUTPUT->notification("Could not add the new course module to that section");
                 return false;
             }
