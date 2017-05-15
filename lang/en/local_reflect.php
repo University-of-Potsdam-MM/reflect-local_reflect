@@ -18,10 +18,10 @@
  *  Strings for component 'local_reflect', language 'en'.
  *
  * @package    local_reflect
- * @copyright  2016 Alexander Kiy <alekiy@uni-potsdam.de>
+ * @copyright  2017 Alexander Kiy <alekiy@uni-potsdam.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 $string['pluginname'] = 'Reflect Web Service';
 $string['local_reflect_courseID_key'] = 'Course ID number';
-$string['local_reflect_courseID'] = 'Course ID number of the reflection course';
+$string['local_reflect_courseID'] = 'Course ID number of the reflection course, seperated by a new line';

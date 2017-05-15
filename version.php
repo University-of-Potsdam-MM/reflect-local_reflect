@@ -16,15 +16,15 @@
  * Defines the metadata for the Reflect Webservice
  *
  * @package    local_reflect
- * @copyright  2016 Alexander Kiy <alekiy@uni-potsdam.de>
+ * @copyright  2017 Alexander Kiy <alekiy@uni-potsdam.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version  = 2016080401;
+$plugin->version  = 2017051101;
 $plugin->requires = 2010112400;
 $plugin->cron     = 0;
-$plugin->release = '1.1 (Build: 20150224020)';
+$plugin->release = '2.0 (Build: 2017051101)';
 $plugin->component = 'local_reflect';        // Full name of the plugin (used for diagnostics).
 $plugin->maturity = MATURITY_STABLE;

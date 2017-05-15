@@ -17,7 +17,7 @@
  * External functions backported.
  *
  * @package    local_reflect
- * @copyright  2016 Alexander Kiy <alekiy@uni-potsdam.de>
+ * @copyright  2017 Alexander Kiy <alekiy@uni-potsdam.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once($CFG->libdir . "/externallib.php");
@@ -53,7 +53,7 @@ class local_reflect_external extends external_api {
 
         $enrolment = false;
         $warnings = array();
-        
+
         $input = get_config('local_reflect','courseID');
 
         //exit if empty
@@ -97,7 +97,6 @@ class local_reflect_external extends external_api {
             $errorparams->courseid = $course->id;
             throw new moodle_exception('wsnoinstance', 'enrol_self', $errorparams);
         }
-
 
         // prepare enrolment
         $timestart = time();
@@ -214,10 +213,7 @@ class local_reflect_external extends external_api {
         $ids_array = explode("\n",str_replace("\r", "", $input));
 
         //check if the specified array of ids contains the course's id
-        if(in_array($courseID, $ids_array)){
-            $courseID= $params['courseID'];
-        }
-        else{
+        if(!in_array($courseID, $ids_array)){
             return;
         }
 
@@ -312,9 +308,7 @@ class local_reflect_external extends external_api {
         $discussion->mailnow = false;
         $discussion->course = $courseid;
 
-
         $discussionPersisted = forum_add_discussion($discussion);
-
 
         rebuild_course_cache($courseid);
     }
@@ -332,7 +326,6 @@ class local_reflect_external extends external_api {
         global $DB, $CFG;
         require_once($CFG->dirroot . "/mod/forum/lib.php");
         include_once($CFG->dirroot . "/course/lib.php");
-
 
         if (!$DB->get_record("forum", array('name' => $forumName, 'course' => $courseid))) {
 
@@ -518,12 +511,11 @@ class local_reflect_external extends external_api {
             $feedbackitems = $DB->get_records('feedback_item', array('feedback' => $feedback_object->id));
             $questions = array();
 
-
             foreach ($feedbackitems as $item_id => $item_object) {
 
                 if ($item_object->typ != 'textfield' AND
-                        $item_object->typ != 'textarea' AND
-                        $item_object->typ != 'multichoice')
+                    $item_object->typ != 'textarea' AND
+                    $item_object->typ != 'multichoice')
                     continue;
 
                 // capture the elements 'dependitem' and 'dependvalue' to be able to define a conditional-question mechanism
@@ -539,7 +531,6 @@ class local_reflect_external extends external_api {
 
                 if ($item_object->typ == 'multichoice')
                     $question['choices'] = $item_object->presentation;
-
 
                 $questions[$item_id] = (array) $question;
             }
@@ -577,7 +568,7 @@ class local_reflect_external extends external_api {
                 'name' => new external_value(PARAM_TEXT, 'feedback name'),
                 'feedbackMessage' => new external_value(PARAM_RAW,'feedback message'),          // 'feedbackMessage' needed for custom message after
                 'id' => new external_value(PARAM_INT, 'event id'),                              //      questionary is submited
-                'questions' => new external_multiple_structure(                                 
+                'questions' => new external_multiple_structure(
                         new external_single_structure(
                         array(
                     'id' => new external_value(PARAM_INT, 'Question Id'),
@@ -670,12 +661,29 @@ class local_reflect_external extends external_api {
         $DB->insert_record('feedback_tracking', $tracking);
 
         foreach ($answers as $item) {
+            if (!$item->hasvalue) {
+                continue;
+            }
+            //get the class of item-typ
+            $itemobj = feedback_get_item_class($item->typ);
+
+            $keyname = $item->typ.'_'.$item->id;
+
+            if ($item->typ === 'multichoice') {
+                $itemvalue = optional_param_array($keyname, null, PARAM_INT);
+            } else {
+                $itemvalue = optional_param($keyname, null, PARAM_NOTAGS);
+            }
+
+            if (is_null($itemvalue)) {
+                continue;
+            }
 
             $value = new stdClass();
             $value->item = $item['id'];
             $value->completed = $completed->id;
             $value->course_id = $course->id;
-            $value->value = $item['answer'];
+            $value->value = $itemobj->create_value($itemvalue);
 
             $DB->insert_record('feedback_value', $value);
         }
