@@ -8,7 +8,8 @@
 ## Configuration
 
 1. go to Administration -> Plugins -> Local Plugins -> Reflect Web Service
-2. add the course ids, seperated by line break, for which the webservice shall be activated
+2. add the course id numbers, seperated by line break, for which the webservice shall be activated (e.g ```UPR1
+UPR-J2```)
 
 ## Documentation
 
