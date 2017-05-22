@@ -11,6 +11,7 @@
 2. add the course id numbers, seperated by line break, for which the webservice shall be activated
 
 (e.g ```UPR1```
+
 ```UPR-J2```)
 
 ## Documentation
