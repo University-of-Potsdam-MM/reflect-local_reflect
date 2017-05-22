@@ -2,7 +2,7 @@
 ------------------------------------------
 
 ## Installation:
-1. checkout the plugin to moodle/local/reflect/ via git clone https://github.com/University-of-Potsdam-MM/reflect-local_reflect.git reflect
+1. checkout the plugin to moodle/local/reflect/ via ```git clone https://github.com/University-of-Potsdam-MM/reflect-local_reflect.git reflect```
 2. log in as  administrator and install the plugin
 
 ## Configuration
