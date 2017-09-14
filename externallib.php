@@ -506,7 +506,17 @@ class local_reflect_external extends external_api {
 
             if (feedback_is_already_submitted($feedback_object->id))
                 continue;
-            //TODO: Time und Caps beachten
+ 
+			 //ini_set('display_errors', 'On');
+			//error_reporting(E_ALL);
+			$time = time();
+			//var_dump($feedback_object->timeopen, $time);
+			if(($feedback_object->timeopen != 0)  && (($feedback_object->timeopen >= $time)))
+			continue;
+
+			if(($feedback_object->timeclose != 0)  && ($time >= $feedback_object->timeclose))
+			continue;
+
 
             $feedbackitems = $DB->get_records('feedback_item', array('feedback' => $feedback_object->id));
             $questions = array();
@@ -651,14 +661,16 @@ class local_reflect_external extends external_api {
         $completed->anonymous_response = 1;
 
         $completedid = $DB->insert_record('feedback_completed', $completed);
+
         $completed = $DB->get_record('feedback_completed', array('id' => $completedid));
 
-        //tracking the submit
-        $tracking = new stdClass();
-        $tracking->userid = $USER->id;
-        $tracking->feedback = $id;
-        $tracking->completed = $completed->id;
-        $DB->insert_record('feedback_tracking', $tracking);
+        //the keys are in the form like abc_xxx
+        //with explode we make an array with(abc, xxx) and (abc=typ und xxx=itemnr)
+
+        //get the items of the feedback
+        if (!$allitems = $DB->get_records('feedback_item', array('feedback'=>$completed->feedback))) {
+            return false;
+        }
 
         foreach ($answers as $item) {
             if (!$item->hasvalue) {
