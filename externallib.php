@@ -466,8 +466,7 @@ class local_reflect_external extends external_api {
         );
     }
 
-
-    /**
+     /**
      * Get Fedback events
      * @package array $options various options
      * @return array Array of feedback details
@@ -499,8 +498,6 @@ class local_reflect_external extends external_api {
 
         $feedback_list = get_all_instances_in_course("feedback", $course, NULL, false);
 
-        //file_put_contents("/xampp/htdocs/UPReflection/output_feedbacks.txt", "Complete Feedbacks: \n", FILE_APPEND);
-        //file_put_contents("/xampp/htdocs/UPReflection/output_feedbacks.txt", print_r($feedback_list, true)."\n", FILE_APPEND);
 
         foreach ($feedback_list as $id => $feedback_object) {
 
@@ -523,24 +520,27 @@ class local_reflect_external extends external_api {
 
             foreach ($feedbackitems as $item_id => $item_object) {
 
+                //file_put_contents("/xampp/htdocs/UPReflection/output_feedbacks.txt", "Whole feedback item: \n", FILE_APPEND);
+                //file_put_contents("/xampp/htdocs/UPReflection/output_feedbacks.txt", print_r($item_object, true)."\n", FILE_APPEND);
+
                 if ($item_object->typ != 'textfield' AND
-                    $item_object->typ != 'textarea' AND
-                    $item_object->typ != 'multichoice')
+                        $item_object->typ != 'textarea' AND
+                        $item_object->typ != 'multichoice')
                     continue;
 
+
                 // capture the elements 'dependitem' and 'dependvalue' to be able to define a conditional-question mechanism
-                // capture the label of the question to implement the two different types of multiple choice (single and multiple answer)
                 $question = array(
                     'id' => $item_object->id,
                     'questionText' => $item_object->name,
                     'type' => $item_object->typ,
                     'dependitem' => $item_object->dependitem,
-                    'dependvalue' => $item_object->dependvalue,
-                    'label' => $item_object->label
+                    'dependvalue' => $item_object->dependvalue
                 );
 
                 if ($item_object->typ == 'multichoice')
                     $question['choices'] = $item_object->presentation;
+
 
                 $questions[$item_id] = (array) $question;
             }
@@ -578,7 +578,7 @@ class local_reflect_external extends external_api {
                 'name' => new external_value(PARAM_TEXT, 'feedback name'),
                 'feedbackMessage' => new external_value(PARAM_RAW,'feedback message'),          // 'feedbackMessage' needed for custom message after
                 'id' => new external_value(PARAM_INT, 'event id'),                              //      questionary is submited
-                'questions' => new external_multiple_structure(
+                'questions' => new external_multiple_structure(                                 
                         new external_single_structure(
                         array(
                     'id' => new external_value(PARAM_INT, 'Question Id'),
@@ -586,8 +586,7 @@ class local_reflect_external extends external_api {
                     'type' => new external_value(PARAM_TEXT, 'Question Text'),
                     'dependitem' => new external_value(PARAM_TEXT, 'Depend Item'),              //'dependitem' and 'dependvalue' attributes needed for
                     'dependvalue' => new external_value(PARAM_TEXT, 'Depend Value'),            //      supporting conditional questions
-                    'label' => new external_value(PARAM_TEXT, 'Question Label'),                // 'label' attribute necessary for supporting multi-choice
-                    'choices' => new external_value(PARAM_TEXT, 'Choices', VALUE_OPTIONAL)      //      question with multiple answers
+                    'choices' => new external_value(PARAM_TEXT, 'Choices', VALUE_OPTIONAL)
                         ), 'Question', VALUE_DEFAULT, array()
                         ), VALUE_DEFAULT, array()
                 )
