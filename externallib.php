@@ -503,7 +503,7 @@ class local_reflect_external extends external_api {
 
             if (feedback_is_already_submitted($feedback_object->id))
                 continue;
- 
+
 			 //ini_set('display_errors', 'On');
 			//error_reporting(E_ALL);
 			$time = time();
@@ -578,7 +578,7 @@ class local_reflect_external extends external_api {
                 'name' => new external_value(PARAM_TEXT, 'feedback name'),
                 'feedbackMessage' => new external_value(PARAM_RAW,'feedback message'),          // 'feedbackMessage' needed for custom message after
                 'id' => new external_value(PARAM_INT, 'event id'),                              //      questionary is submited
-                'questions' => new external_multiple_structure(                                 
+                'questions' => new external_multiple_structure(
                         new external_single_structure(
                         array(
                     'id' => new external_value(PARAM_INT, 'Question Id'),
@@ -672,6 +672,7 @@ class local_reflect_external extends external_api {
         }
 
         foreach ($answers as $item) {
+            /*
             if (!$item->hasvalue) {
                 continue;
             }
@@ -689,12 +690,13 @@ class local_reflect_external extends external_api {
             if (is_null($itemvalue)) {
                 continue;
             }
-
+            */
             $value = new stdClass();
             $value->item = $item['id'];
             $value->completed = $completed->id;
             $value->course_id = $course->id;
-            $value->value = $itemobj->create_value($itemvalue);
+            //$value->value = $itemobj->create_value($itemvalue);
+            $value->value = $item['answer'];
 
             $DB->insert_record('feedback_value', $value);
         }
