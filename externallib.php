@@ -583,7 +583,7 @@ class local_reflect_external extends external_api {
                         array(
                     'id' => new external_value(PARAM_INT, 'Question Id'),
                     'questionText' => new external_value(PARAM_TEXT, 'Question Text'),
-                    'type' => new external_value(PARAM_TEXT, 'Question Text'),
+                    'type' => new external_value(PARAM_TEXT, 'Question Type'),
                     'dependitem' => new external_value(PARAM_TEXT, 'Depend Item'),              //'dependitem' and 'dependvalue' attributes needed for
                     'dependvalue' => new external_value(PARAM_TEXT, 'Depend Value'),            //      supporting conditional questions
                     'choices' => new external_value(PARAM_TEXT, 'Choices', VALUE_OPTIONAL)
@@ -623,7 +623,7 @@ class local_reflect_external extends external_api {
 
 
     /**
-     * Get Fedback events
+     * Get Feedback events
      * @package array $options various options
      * @return array Array of feedback details
      * @since Moodle 2.5
@@ -651,6 +651,11 @@ class local_reflect_external extends external_api {
         $course = $DB->get_record('course', array('idnumber' => $courseID));
         if (!$course)
             return;
+
+        // testing fix for double entries
+        // feedback_is_already_submitted checks if there are already saved answers for the user
+        // if true: function returns without saving the values for a second time
+        if (feedback_is_already_submitted($id)) { $result['resultText'] = "Your answers have already been submitted"; return $result; }
 
         $completed = new stdClass();
         $completed->feedback = $id;
@@ -694,6 +699,7 @@ class local_reflect_external extends external_api {
             $value = new stdClass();
             $value->item = $item['id'];
             $value->completed = $completed->id;
+            $value->tmp_completed = $completed->feedback; // need to save the original ID to identify set of answers for get_completed_feedbacks
             $value->course_id = $course->id;
             //$value->value = $itemobj->create_value($itemvalue);
             $value->value = $item['answer'];
@@ -717,6 +723,143 @@ class local_reflect_external extends external_api {
                 array(
             'resultText' => new external_value(PARAM_TEXT, 'Result Text'),
                 )
+        );
+    }
+
+
+    /** NEW:
+     *  Returns already answered feedbacks
+     */
+
+    public static function get_completed_feedbacks_parameters() {
+        return new external_function_parameters(
+            array(
+                'courseID' => new external_value(PARAM_TEXT, 'courseID')
+            )
+        );
+    }
+
+    public static function get_completed_feedbacks($courseID) {
+
+        global $SITE, $DB, $USER, $CFG;
+        require_once($CFG->dirroot . "/mod/feedback/lib.php");
+
+        $feedbacks = array();
+
+        $input = get_config('local_reflect','courseID');
+
+        // exit if empty
+        if (strlen($input) == 0) { return; }
+
+        // tokenize trimmed input
+        $ids_array = explode("\n", str_replace("\r", "", $input));
+
+        // check if the specified array of ids contains the course's id
+        if (!in_array($courseID, $ids_array)) { return; }
+
+        $course = $DB->get_record('course', array('idnumber' => $courseID));
+        if (!$course) { return; }
+
+        $feedback_list = get_all_instances_in_course("feedback", $course, NULL, false);
+
+        foreach ($feedback_list as $id => $feedback_object) {
+
+            // skip feedbacks that are NOT already completed
+            if (!feedback_is_already_submitted($feedback_object->id)) { continue; }
+
+            // get feedbacks
+            $feedbackitems = $DB->get_records('feedback_item', array('feedback' => $feedback_object->id));
+            $questions = array();
+
+            foreach ($feedbackitems as $item_id => $item_object) {
+
+                // file_put_contents("/Applications/MAMP/htdocs/moodle34/output_feedbacks.txt", "Whole Feedback Item: \n", FILE_APPEND);
+                // file_put_contents("/Applications/MAMP/htdocs/moodle34/output_feedbacks.txt", print_r($item_object, true)."\n", FILE_APPEND);
+
+                $question = array(
+                    'id' => $item_object->id,
+                    'questionText' => $item_object->name,
+                    'type' => $item_object->typ,
+                    'dependitem' => $item_object->dependitem,
+                    'dependvalue' => $item_object->dependvalue
+                );
+
+                if ($item_object->typ == 'multichoice') { $question['choices'] = $item_object->presentation; }
+
+                $questions[$item_id] = (array) $question;
+            }
+
+            // get feedback_values / answers
+            $feedbackvalues = $DB->get_records('feedback_value', array('tmp_completed' => $feedback_object->id));
+            $answers = array();
+
+            foreach ($feedbackvalues as $item_id => $item_object) {
+
+                // file_put_contents("/Applications/MAMP/htdocs/moodle34/output_feedbacks.txt", "Whole Value Item: \n", FILE_APPEND);
+                // file_put_contents("/Applications/MAMP/htdocs/moodle34/output_feedbacks.txt", print_r($item_object, true)."\n", FILE_APPEND);
+
+                $answer = array(
+                    'item' => $item_object->item,
+                    'completed' => $item_object->completed,
+                    'courseID' => $item_object->course_id,
+                    'value' => $item_object->value
+                );
+
+                $answers[$item_id] = (array) $answer;
+            }
+
+            $feedback = array(
+                'name' => $feedback_object->name,
+                'feedbackMessage' => $feedback_object->page_after_submit,
+                'id' => $feedback_object->id,
+                'questions' => $questions,
+                'answers' => $answers
+            );
+
+            $feedbacks[$id] = (array) $feedback;
+
+        }
+
+        return array('feedbacks' => $feedbacks);
+
+    }
+
+    public static function get_completed_feedbacks_returns() {
+        return new external_single_structure(
+            array(
+                'feedbacks' => new external_multiple_structure(
+                    new external_single_structure(
+                        array(
+                            'name' => new external_value(PARAM_TEXT, 'feedback name'),
+                            'feedbackMessage' => new external_value(PARAM_RAW, 'feedback message'),
+                            'id' => new external_value(PARAM_INT, 'event id'),
+                            'questions' => new external_multiple_structure(
+                                new external_single_structure(
+                                    array(
+                                        'id' => new external_value(PARAM_INT, 'Question Id'),
+                                        'questionText' => new external_value(PARAM_TEXT, 'Question Text'),
+                                        'type' => new external_value(PARAM_TEXT, 'Question Type'),
+                                        'dependitem' => new external_value(PARAM_TEXT, 'Depend Item'),          // probably not needed
+                                        'dependvalue' => new external_value(PARAM_TEXT, 'Depend Value'),
+                                        'choices' => new external_value(PARAM_TEXT, 'Choices', VALUE_OPTIONAL)
+                                    ), 'Question', VALUE_DEFAULT, array()
+                                ), VALUE_DEFAULT, array()
+                            )
+                            ,
+                            'answers' => new external_multiple_structure(
+                                new external_single_structure(
+                                    array(
+                                        'item' => new external_value(PARAM_INT, 'Question Id'),
+                                        'completed' => new external_value(PARAM_TEXT, 'Completed Id'),
+                                        'courseID' => new external_value(PARAM_TEXT, 'Course Id'),              // probably not needed
+                                        'value' => new external_value(PARAM_TEXT, 'Feedback Value')
+                                    ), 'Answer', VALUE_DEFAULT, array()
+                                ), VALUE_DEFAULT, array()
+                            )
+                        ), 'Feedback'
+                    )
+                )
+            )
         );
     }
 

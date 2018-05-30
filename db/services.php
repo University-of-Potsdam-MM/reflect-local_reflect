@@ -42,22 +42,27 @@ $functions = array(
         'classpath' => 'local/reflect/externallib.php',
         'description' => 'Submits the feedback values for the Reflection course',
         'type' => 'write',
-    )
-    ,
+    ),
     'local_reflect_enrol_self' => array(
         'classname' => 'local_reflect_external',
         'methodname' => 'enrol_self',
         'classpath' => 'local/reflect/externallib.php',
         'description' => 'Enrols user in reflection course',
         'type' => 'write',
-    )
-    ,
+    ),
     'local_reflect_post_feedback' => array(
         'classname' => 'local_reflect_external',
         'methodname' => 'post_feedback',
         'classpath' => 'local/reflect/externallib.php',
         'description' => 'post general feedback',
         'type' => 'write',
+    ),
+    'local_reflect_get_completed_feedbacks' => array(
+        'classname' => 'local_reflect_external',
+        'methodname' => 'get_completed_feedbacks',
+        'classpath' => 'local/reflect/externallib.php',
+        'description' => 'Returns answered feedbacks for the Reflection course',
+        'type' => 'read',
     )
 );
 
@@ -69,7 +74,8 @@ $services = array(
             'local_reflect_get_feedbacks',
             'local_reflect_submit_feedbacks',
             'local_reflect_enrol_self',
-            'local_reflect_post_feedback'
+            'local_reflect_post_feedback',
+            'local_reflect_get_completed_feedbacks'
         ),
         'restrictedusers' => 0,
         'enabled' => 1,

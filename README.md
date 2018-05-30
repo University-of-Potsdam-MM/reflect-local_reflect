@@ -1,19 +1,20 @@
 # Reflect - Webservice
-------------------------------------------
+
+## New
+* local_reflect_get_completed_feedbacks (returns already answered feedbacks + answers)
+* checks if same user already submitted answers to the database (to prevent entries showing up twice)
+
+## Original Repository:
+* https://github.com/University-of-Potsdam-MM/reflect-local_reflect.git
 
 ## Installation:
-1. checkout the plugin to moodle/local/reflect/ via ```git clone https://github.com/University-of-Potsdam-MM/reflect-local_reflect.git reflect```
+1. checkout the plugin to moodle/local/reflect/
 2. log in as  administrator and install the plugin
 
 ## Configuration
 
 1. go to Administration -> Plugins -> Local Plugins -> Reflect Web Service
 2. add the course id numbers, seperated by line break, for which the webservice shall be activated
-e.g.
-
-```UPR1```
-
-```UPR-J2```
 
 ## Documentation
 
