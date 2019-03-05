@@ -17,7 +17,7 @@
  * External functions backported.
  *
  * @package    local_reflect
- * @copyright  2017 Alexander Kiy <alekiy@uni-potsdam.de>
+ * @copyright  2019 Alexander Kiy <alekiy@uni-potsdam.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once($CFG->libdir . "/externallib.php");
@@ -467,7 +467,7 @@ class local_reflect_external extends external_api {
     }
 
      /**
-     * Get Fedback events
+     * Get Feedback events
      * @package array $options various options
      * @return array Array of feedback details
      * @since Moodle 2.5
@@ -514,8 +514,10 @@ class local_reflect_external extends external_api {
 			if(($feedback_object->timeclose != 0)  && ($time >= $feedback_object->timeclose))
 			continue;
 
+            // Changed the DB results to be ordered by the position defined in the table
+            // $feedbackitems = $DB->get_records('feedback_item', array('feedback' => $feedback_object->id));
+            $feedbackitems = $DB->get_records_select('feedback_item', 'feedback ='.$feedback_object->id, null, 'position');
 
-            $feedbackitems = $DB->get_records('feedback_item', array('feedback' => $feedback_object->id));
             $questions = array();
 
             foreach ($feedbackitems as $item_id => $item_object) {
@@ -623,7 +625,7 @@ class local_reflect_external extends external_api {
 
 
     /**
-     * Get Feedback events
+     * Submit Feedback
      * @package array $options various options
      * @return array Array of feedback details
      * @since Moodle 2.5
@@ -728,7 +730,9 @@ class local_reflect_external extends external_api {
 
 
     /** NEW:
-     *  Returns already answered feedbacks
+     * returns already answered feedbacks:
+     * ATTENTION: this only works for feedbacks that were
+     * submitted with the submit_feedbacks function above
      */
 
     public static function get_completed_feedbacks_parameters() {
@@ -768,7 +772,19 @@ class local_reflect_external extends external_api {
             if (!feedback_is_already_submitted($feedback_object->id)) { continue; }
 
             // get feedbacks
-            $feedbackitems = $DB->get_records('feedback_item', array('feedback' => $feedback_object->id));
+            // Changed the DB results to be ordered by the position defined in the table
+            // $feedbackitems = $DB->get_records('feedback_item', array('feedback' => $feedback_object->id));
+            $feedbackitems = $DB->get_records_select('feedback_item', 'feedback ='.$feedback_object->id, null, 'position');
+
+            // skip, if there are no questions for that specific feedback_object
+            if (!count($feedbackitems) > 0) { continue; }
+
+            // get answers for that feedback_object
+            $feedbackvalues = $DB->get_records('feedback_value', array('tmp_completed' => $feedback_object->id));
+
+            // skip, if there are no answers from the current user for that specific feedback_object
+            if (!count($feedbackvalues) > 0) { continue; }
+
             $questions = array();
 
             foreach ($feedbackitems as $item_id => $item_object) {
@@ -789,8 +805,6 @@ class local_reflect_external extends external_api {
                 $questions[$item_id] = (array) $question;
             }
 
-            // get feedback_values / answers
-            $feedbackvalues = $DB->get_records('feedback_value', array('tmp_completed' => $feedback_object->id));
             $answers = array();
 
             foreach ($feedbackvalues as $item_id => $item_object) {
