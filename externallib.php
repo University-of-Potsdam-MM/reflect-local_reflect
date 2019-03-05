@@ -514,8 +514,10 @@ class local_reflect_external extends external_api {
 			if(($feedback_object->timeclose != 0)  && ($time >= $feedback_object->timeclose))
 			continue;
 
+            // Changed the DB results to be ordered by the position defined in the table
+            // $feedbackitems = $DB->get_records('feedback_item', array('feedback' => $feedback_object->id));
+            $feedbackitems = $DB->get_records_select('feedback_item', 'feedback ='.$feedback_object->id, null, 'position');
 
-            $feedbackitems = $DB->get_records('feedback_item', array('feedback' => $feedback_object->id));
             $questions = array();
 
             foreach ($feedbackitems as $item_id => $item_object) {
@@ -770,7 +772,9 @@ class local_reflect_external extends external_api {
             if (!feedback_is_already_submitted($feedback_object->id)) { continue; }
 
             // get feedbacks
-            $feedbackitems = $DB->get_records('feedback_item', array('feedback' => $feedback_object->id));
+            // Changed the DB results to be ordered by the position defined in the table
+            // $feedbackitems = $DB->get_records('feedback_item', array('feedback' => $feedback_object->id));
+            $feedbackitems = $DB->get_records_select('feedback_item', 'feedback ='.$feedback_object->id, null, 'position');
 
             // skip, if there are no questions for that specific feedback_object
             if (!count($feedbackitems) > 0) { continue; }
