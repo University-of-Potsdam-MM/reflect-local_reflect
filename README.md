@@ -2,6 +2,7 @@
 
 ## New
 * local_reflect_get_completed_feedbacks (returns already answered feedbacks + answers)
+  * only works for feedbacks that have been submitted with the current local_reflect_submit_feedbacks function
 * checks if same user already submitted answers to the database (to prevent entries showing up twice)
 
 ## Installation:
