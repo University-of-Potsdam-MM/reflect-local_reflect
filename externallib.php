@@ -877,4 +877,77 @@ class local_reflect_external extends external_api {
         );
     }
 
+    /**
+     * Returns description of method parameters
+     *
+     * @return external_function_parameters
+     * @since Moodle 2.5
+     */
+    public static function get_messages_parameters() {
+        return new external_function_parameters(
+            array(
+                'courseID' => new external_value(PARAM_TEXT, 'courseID')
+            )
+        );
+    }
+
+     /**
+     * Get Messages
+     * @return array Array of message details
+     * @since Moodle 2.5
+     */
+    public static function get_messages($courseID) {
+        global $DB;
+        $dbman = $DB->get_manager();
+
+        if ($dbman->table_exists('block_pushnotification')) {
+            $messages = array();
+            $message_list = $DB->get_records('block_pushnotification', array('idnumber' => $courseID));
+
+            if (!$message_list)
+                return;
+
+            foreach ($message_list as $id => $message_object) {
+                $message = array(
+                    'id' => $message_object->id,
+                    'timestamp' => $message_object->timestamp,
+                    'title' => $message_object->title,
+                    'message' => $message_object->message,
+                );
+                $messages[$id] = (array) $message;
+            }
+
+            return array('messages' => $messages);
+        } else {
+            throw new moodle_exception(
+                'database_missing',
+                'error',
+                '',
+                null,
+                'The table block_pushnotification does not exist. Make sure you have reflect-block_pushnotification installed'
+            );
+        }
+    }
+
+    /**
+     * Returns description of method result value
+     *
+     * @return external_description
+     * @since Moodle 2.5
+     */
+    public static function get_messages_returns() {
+        return new external_single_structure(
+            array('messages' => new external_multiple_structure(
+                new external_single_structure(
+                    array(
+                        'id' => new external_value(PARAM_INT, 'message id'),
+                        'timestamp' => new external_value(PARAM_INT, 'unix timestamp of message'),
+                        'title' => new external_value(PARAM_TEXT, 'optional title'),
+                        'message' => new external_value(PARAM_TEXT, 'content of push message'),
+                    ), 'Message'
+                )
+            ))
+        );
+    }
+
 }

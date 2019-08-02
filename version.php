@@ -16,13 +16,13 @@
  * Defines the metadata for the Reflect Webservice
  *
  * @package    local_reflect
- * @copyright  2017 Alexander Kiy <alekiy@uni-potsdam.de>
+ * @copyright  2019 Alexander Kiy <alekiy@uni-potsdam.de>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version  = 2018071801;
+$plugin->version  = 2019080205;
 $plugin->requires = 2010112400;
 $plugin->cron     = 0;
 $plugin->release = '2.0 (Build: 2017051101)';
