@@ -1,10 +1,5 @@
 # Reflect - Webservice
 
-## New
-* local_reflect_get_completed_feedbacks (returns already answered feedbacks + answers)
-  * only works for feedbacks that have been submitted with the current local_reflect_submit_feedbacks function
-* checks if same user already submitted answers to the database (to prevent entries showing up twice)
-
 ## Installation:
 1. checkout the plugin to moodle/local/reflect/ via ```git clone https://github.com/University-of-Potsdam-MM/reflect-local_reflect.git reflect```
 2. log in as  administrator and install the plugin
@@ -29,3 +24,7 @@ For an overview of the existing functions go to Administration -> Plugins -> Web
 * local_reflect_submit_feedbacks	(submits the feedback values to the specified reflection course)
 * local_reflect_enrol_self	(enrols user in a specified reflection course)
 * local_reflect_post_feedback	(post general feedback to the forum of the course)
+* local_reflect_get_completed_feedbacks (returns already answered feedbacks + answers)
+
+### Depends on reflect-block_pushnotification (https://github.com/University-of-Potsdam-MM/reflect-block_pushnotification)
+* local_reflect_get_messages	(returns messages sent by the reflect-block_pushnotification)

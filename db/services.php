@@ -63,6 +63,13 @@ $functions = array(
         'classpath' => 'local/reflect/externallib.php',
         'description' => 'Returns answered feedbacks for the Reflection course',
         'type' => 'read',
+    ),
+    'local_reflect_get_messages' => array(
+        'classname' => 'local_reflect_external',
+        'methodname' => 'get_messages',
+        'classpath' => 'local/reflect/externallib.php',
+        'description' => 'Returns messages sent by the reflect-block_pushnotification',
+        'type' => 'read',
     )
 );
 
@@ -75,7 +82,8 @@ $services = array(
             'local_reflect_submit_feedbacks',
             'local_reflect_enrol_self',
             'local_reflect_post_feedback',
-            'local_reflect_get_completed_feedbacks'
+            'local_reflect_get_completed_feedbacks',
+            'local_reflect_get_messages'
         ),
         'restrictedusers' => 0,
         'enabled' => 1,
